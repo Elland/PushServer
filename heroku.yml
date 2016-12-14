@@ -16,3 +16,8 @@ apn:
   pushKey:
   voipCertificate:
   voipKey:
+
+server:
+  applicationConnectors:
+    - type: http
+      port:
