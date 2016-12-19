@@ -1,0 +1,5 @@
+deployment:
+  development:
+    branch: master
+    commands:
+      - git push git@heroku.com:token-push-service.git $CIRCLE_SHA1:master
