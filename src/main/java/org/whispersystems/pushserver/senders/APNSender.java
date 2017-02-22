@@ -94,6 +94,7 @@ public class APNSender implements Managed {
     try {
       redisSet(message.getApnId(), message.getNumber(), message.getDeviceId());
 
+      logger.info("Is VOIP: ", message.isVoip());
       if (message.isVoip()) {
         voipApnService.push(message.getApnId(), message.getMessage(), new Date(message.getExpirationTime()));
         voipMeter.mark();
@@ -138,12 +139,12 @@ public class APNSender implements Managed {
     this.pushApnService = APNS.newService()
                               .withCert(new ByteArrayInputStream(pushKeyStore), "insecure")
                               .asQueued()
-                              .withProductionDestination().build();
+                              .withSandboxDestination().build();
 
     this.voipApnService = APNS.newService()
                               .withCert(new ByteArrayInputStream(voipKeyStore), "insecure")
                               .asQueued()
-                              .withProductionDestination().build();
+                              .withSandboxDestination().build();
 
     if (feedbackEnabled) {
       this.executor.scheduleAtFixedRate(new FeedbackRunnable(), 0, 1, TimeUnit.HOURS);
