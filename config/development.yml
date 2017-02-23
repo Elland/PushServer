@@ -1,0 +1,29 @@
+stage: development
+
+logging:
+  # OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
+  level: DEBUG
+
+authentication:
+  servers:
+    - name: chat-service
+      password:
+
+redis:
+  url:
+
+gcm:
+  senderId:
+  apiKey:
+  redphoneApiKey:
+
+apn:
+  pushCertificate:
+  pushKey:
+  voipCertificate:
+  voipKey:
+
+server:
+  applicationConnectors:
+    - type: http
+      port:

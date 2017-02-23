@@ -52,7 +52,7 @@ public class PushServer extends Application<PushServerConfiguration> {
     UnregisteredQueue   apnQueue            = new UnregisteredQueue(redisClient, environment.getObjectMapper(), servers, "apn");
     UnregisteredQueue   gcmQueue            = new UnregisteredQueue(redisClient, environment.getObjectMapper(), servers, "gcm");
 
-    APNSender apnSender = initializeApnSender(redisClient, apnQueue, config.getApnConfiguration());
+    APNSender apnSender = initializeApnSender(redisClient, apnQueue, config.getApnConfiguration(), config.getStage());
     GCMSender gcmSender = initializeGcmSender(gcmQueue, config.getGcmConfiguration());
 
     environment.lifecycle().manage(apnSender);
@@ -67,14 +67,16 @@ public class PushServer extends Application<PushServerConfiguration> {
 
   private APNSender initializeApnSender(JedisPool redisClient,
                                         UnregisteredQueue apnQueue,
-                                        ApnConfiguration configuration)
+                                        ApnConfiguration configuration,
+                                        String stage)
   {
     return new APNSender(redisClient, apnQueue,
                          configuration.getPushCertificate(),
                          configuration.getPushKey(),
                          configuration.getVoipCertificate(),
                          configuration.getVoipKey(),
-                         configuration.isFeedbackEnabled());
+                         configuration.isFeedbackEnabled(),
+                         stage);
   }
 
   private GCMSender initializeGcmSender(UnregisteredQueue gcmQueue,

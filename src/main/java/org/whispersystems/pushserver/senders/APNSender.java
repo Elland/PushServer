@@ -70,6 +70,7 @@ public class APNSender implements Managed {
   private final String            voipCertificate;
   private final String            voipKey;
   private final boolean           feedbackEnabled;
+  private final String            stage;
 
   private ApnsService pushApnService;
   private ApnsService voipApnService;
@@ -77,7 +78,7 @@ public class APNSender implements Managed {
   public APNSender(JedisPool jedisPool, UnregisteredQueue unregisteredQueue,
                    String pushCertificate, String pushKey,
                    String voipCertificate, String voipKey,
-                   boolean feedbackEnabled)
+                   boolean feedbackEnabled, String stage)
   {
     this.jedisPool         = jedisPool;
     this.unregisteredQueue = unregisteredQueue;
@@ -86,6 +87,7 @@ public class APNSender implements Managed {
     this.voipCertificate   = voipCertificate;
     this.voipKey           = voipKey;
     this.feedbackEnabled   = feedbackEnabled;
+    this.stage             = stage;
   }
 
   public void sendMessage(ApnMessage message)
@@ -136,15 +138,29 @@ public class APNSender implements Managed {
     byte[] pushKeyStore = initializeKeyStore(pushCertificate, pushKey);
     byte[] voipKeyStore = initializeKeyStore(voipCertificate, voipKey);
 
-    this.pushApnService = APNS.newService()
-                              .withCert(new ByteArrayInputStream(pushKeyStore), "insecure")
-                              .asQueued()
-                              .withSandboxDestination().build();
+    if (this.stage.equals("development")) {
+      logger.info("Initializing APNS in development");
+      this.pushApnService = APNS.newService()
+                                .withCert(new ByteArrayInputStream(pushKeyStore), "insecure")
+                                .asQueued()
+                                .withSandboxDestination().build();
 
-    this.voipApnService = APNS.newService()
-                              .withCert(new ByteArrayInputStream(voipKeyStore), "insecure")
-                              .asQueued()
-                              .withSandboxDestination().build();
+      this.voipApnService = APNS.newService()
+                                .withCert(new ByteArrayInputStream(voipKeyStore), "insecure")
+                                .asQueued()
+                                .withSandboxDestination().build();
+    } else {
+      logger.info("Initializing APNS in "+this.stage);
+      this.pushApnService = APNS.newService()
+                                .withCert(new ByteArrayInputStream(pushKeyStore), "insecure")
+                                .asQueued()
+                                .withProductionDestination().build();
+
+      this.voipApnService = APNS.newService()
+                                .withCert(new ByteArrayInputStream(voipKeyStore), "insecure")
+                                .asQueued()
+                                .withProductionDestination().build();
+    }
 
     if (feedbackEnabled) {
       this.executor.scheduleAtFixedRate(new FeedbackRunnable(), 0, 1, TimeUnit.HOURS);

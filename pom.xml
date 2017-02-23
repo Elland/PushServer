@@ -183,11 +183,11 @@
                                     </manifest>
                                 </mode>
                                 <mode>
-                                    <name>local</name>
+                                    <name>development</name>
                                     <manifest>
                                         <entry>
                                             <key>Args</key>
-                                            <value>server $CAPSULE_DIR/config/local.yml</value>
+                                            <value>server $CAPSULE_DIR/config/development.yml</value>
                                         </entry>
                                     </manifest>
                                 </mode>
@@ -199,7 +199,7 @@
                                     <includes>
                                         <include>production.yml</include>
                                         <include>staging.yml</include>
-                                        <include>local.yml</include>
+                                        <include>development.yml</include>
                                     </includes>
                                 </fileSet>
                             </fileSets>

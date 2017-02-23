@@ -16,6 +16,11 @@ public class PushServerConfiguration extends Configuration {
   @JsonProperty
   @Valid
   @NotNull
+  private String stage;
+
+  @JsonProperty
+  @Valid
+  @NotNull
   private AuthenticationConfiguration authentication;
 
   @JsonProperty
@@ -32,7 +37,11 @@ public class PushServerConfiguration extends Configuration {
   @Valid
   @NotNull
   private GcmConfiguration gcm;
-  
+
+  public String getStage() {
+    return stage;
+  }
+
   public AuthenticationConfiguration getAuthenticationConfiguration() {
     return authentication;
   }
@@ -48,4 +57,5 @@ public class PushServerConfiguration extends Configuration {
   public GcmConfiguration getGcmConfiguration() {
     return gcm;
   }
+
 }
