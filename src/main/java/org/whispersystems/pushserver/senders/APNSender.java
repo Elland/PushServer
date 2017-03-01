@@ -71,6 +71,7 @@ public class APNSender implements Managed {
   private final String            voipKey;
   private final boolean           feedbackEnabled;
   private final String            stage;
+  private final APNSenderDelegate delegate;
 
   private ApnsService pushApnService;
   private ApnsService voipApnService;
@@ -88,6 +89,7 @@ public class APNSender implements Managed {
     this.voipKey           = voipKey;
     this.feedbackEnabled   = feedbackEnabled;
     this.stage             = stage;
+    this.delegate          = new APNSenderDelegate();
   }
 
   public void sendMessage(ApnMessage message)
@@ -96,11 +98,13 @@ public class APNSender implements Managed {
     try {
       redisSet(message.getApnId(), message.getNumber(), message.getDeviceId());
 
-      logger.info("Is VOIP: ", message.isVoip());
+
       if (message.isVoip()) {
+        logger.info("Is VOIP");
         voipApnService.push(message.getApnId(), message.getMessage(), new Date(message.getExpirationTime()));
         voipMeter.mark();
       } else {
+        logger.info("Is non-VOIP");
         pushApnService.push(message.getApnId(), message.getMessage(), new Date(message.getExpirationTime()));
         pushMeter.mark();
       }
@@ -154,11 +158,13 @@ public class APNSender implements Managed {
       this.pushApnService = APNS.newService()
                                 .withCert(new ByteArrayInputStream(pushKeyStore), "insecure")
                                 .asQueued()
+                                .withDelegate(delegate)
                                 .withProductionDestination().build();
 
       this.voipApnService = APNS.newService()
                                 .withCert(new ByteArrayInputStream(voipKeyStore), "insecure")
                                 .asQueued()
+                                .withDelegate(delegate)
                                 .withProductionDestination().build();
     }
 
@@ -191,6 +197,8 @@ public class APNSender implements Managed {
 
     @Override
     public void run() {
+      pushApnService.testConnection();
+
       Map<String, Date> inactiveDevices = pushApnService.getInactiveDevices();
       inactiveDevices.putAll(voipApnService.getInactiveDevices());
 
