@@ -1,5 +1,9 @@
 stage: production
 
+logging:
+  # OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
+  level: DEBUG
+
 authentication:
   servers:
     - name: chat-service
