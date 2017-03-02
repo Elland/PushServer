@@ -2,7 +2,7 @@ stage: production
 
 logging:
   # OFF, ERROR, WARN, INFO, DEBUG, TRACE, or ALL.
-  level: DEBUG
+  level: INFO
 
 authentication:
   servers:
